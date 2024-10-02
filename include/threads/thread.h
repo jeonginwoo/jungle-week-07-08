@@ -90,7 +90,16 @@ struct thread {
 	tid_t tid;                          /* Thread identifier. */
 	enum thread_status status;          /* Thread state. */
 	char name[16];                      /* Name (for debugging purposes). */
-	int priority;                       /* Priority. */
+	int priority;                       /* Donation Priority. */
+	
+	int ori_priority;
+	struct lock *wait_on_lock;
+	struct list donations;
+	struct list_elem donation_elem;
+	struct list_elem all_elem;
+
+	int nice;
+	int recent_cpu;
 
 	/* Shared between thread.c and synch.c. */
 	struct list_elem elem;              /* List element. */
@@ -115,7 +124,7 @@ struct sleeping_thread {
 	struct list_elem elem;
 };
 
-bool check_priority();
+void check_priority();
 void print_ready_list(void);
 static struct list ready_list;
 
@@ -152,5 +161,4 @@ int thread_get_recent_cpu (void);
 int thread_get_load_avg (void);
 
 void do_iret (struct intr_frame *tf);
-
 #endif /* threads/thread.h */

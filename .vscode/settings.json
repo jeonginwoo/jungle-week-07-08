@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "*html": "html",
+        "intrinsic.h": "c",
+        "fixed_point.h": "c",
+        "syscall.h": "c",
+        "string.h": "c",
+        "gdt.h": "c"
+    }
+}
