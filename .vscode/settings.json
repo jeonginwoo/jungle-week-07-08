@@ -12,6 +12,13 @@
         "filesys.h": "c",
         "palloc.h": "c",
         "inttypes.h": "c",
-        "lib.h": "c"
+        "lib.h": "c",
+        "synch.h": "c",
+        "stdio.h": "c",
+        "*.inc": "c",
+        "thread.h": "c",
+        "mmu.h": "c",
+        "vaddr.h": "c",
+        "off_t.h": "c"
     }
 }
