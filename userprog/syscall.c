@@ -7,7 +7,8 @@
 #include "userprog/gdt.h"
 #include "threads/flags.h"
 #include "intrinsic.h"
-
+#include <stdbool.h>
+typedef int pid_t;
 void syscall_entry (void);
 void syscall_handler (struct intr_frame *);
 
@@ -41,6 +42,162 @@ syscall_init (void) {
 void
 syscall_handler (struct intr_frame *f UNUSED) {
 	// TODO: Your implementation goes here.
+	uint64_t *arg1 = (void *)f->R.rdi;
+    uint64_t *arg2 = (void *)f->R.rsi;
+    uint64_t *arg3 = (void *)f->R.rdx;
+    uint64_t *arg4 = (void *)f->R.r10;
+    uint64_t *arg5 = (void *)f->R.r8;
+    uint64_t *arg6 = (void *)f->R.r9;
+	
+
+	switch (f->R.rax){
+		if((f->cs & 0x3))
+
+		case SYS_HALT:
+			printf("SYS_HALT\n");
+			f->R.rax = halt ();
+			break;
+
+		case SYS_EXIT:
+			printf("SYS_EXIT\n");
+			f->R.rax = exit (arg1);
+			break;
+
+		case SYS_FORK:
+			printf("SYS_FORK\n");
+			f->R.rax = fork (arg1);
+			break;
+
+		case SYS_EXEC:
+			printf("SYS_EXEC\n");
+			f->R.rax = exec (arg1);
+			break;
+
+		case SYS_WAIT:
+			printf("SYS_WAIT\n");
+			f->R.rax = wait (arg1);
+			break;
+
+		case SYS_CREATE:
+			printf("SYS_CREATE\n");
+			f->R.rax = create (arg1, arg2);
+			break;
+
+		case SYS_REMOVE:
+			printf("SYS_REMOVE\n");
+			f->R.rax = remove (arg1);
+			break;
+
+		case SYS_OPEN:
+			printf("SYS_OPEN\n");
+			f->R.rax = open (arg1);
+			break;
+
+		case SYS_FILESIZE:
+			printf("SYS_FILESIZE\n");
+			f->R.rax = filesize (arg1);
+			break;
+
+		case SYS_READ:
+			printf("SYS_READ\n");
+			f->R.rax = read (arg1, arg2, arg3);
+			break;
+
+		case SYS_WRITE:
+			printf("SYS_WRITE\n");
+			f->R.rax = write (arg1, arg2, arg3);
+			break;
+
+		case SYS_SEEK:
+			printf("SYS_SEEK\n");
+			f->R.rax = seek (arg1, arg2);
+			break;
+
+		case SYS_TELL:
+			printf("SYS_TELL\n");
+			f->R.rax = tell (arg1);
+			break;
+
+		case SYS_CLOSE:
+			printf("SYS_CLOSE\n");
+			f->R.rax = close (arg1);
+			break;
+
+		default:
+			
+			printf("default\n");
+			break;
+
+	}
 	printf ("system call!\n");
 	thread_exit ();
 }
+
+// void user_memory_vaild(uint64_t *r) {
+// 	if (r != NULL && is_user_vaddr(r)){
+// 		return;
+// 	}
+// 	return false;
+// }
+
+void halt (void){
+	powar_off();
+	return;
+};
+
+void exit (int status){
+	thread_exit();
+	return status;
+};
+
+pid_t fork (const char *thread_name){
+	// return thread_create(thread_name, PRI_DEFAULT, dofork, ())
+};
+
+int exec (const char *file){
+
+};
+
+int wait (pid_t){
+
+};
+
+bool create (const char *file, unsigned initial_size){
+	return filesys_create(file, initial_size);
+};
+
+bool remove (const char *file){
+	return filesys_remove(file);
+};
+
+int open (const char *file){
+	struct file *f = filesys_open(file);
+	
+};
+
+int filesize (int fd){
+
+};
+
+int read (int fd, void *buffer, unsigned length){
+
+};
+
+int write (int fd, const void *buffer, unsigned length){
+
+};
+
+void seek (int fd, unsigned position){
+
+};
+
+unsigned tell (int fd){
+
+};
+
+void close (int fd){
+
+};
+
+
+
