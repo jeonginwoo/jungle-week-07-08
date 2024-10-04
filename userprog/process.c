@@ -295,7 +295,6 @@ void process_exit(void) // thread_exit을 통해 여기로 옴
         close(i);
     }
 
-    palloc_free_multiple(cur->fd_table, 1);
     process_cleanup();
 
     sema_up(&cur->wait_sema); // 끝나고 기다리는 부모한테 세마포 넘겨줌
