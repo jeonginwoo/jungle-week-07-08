@@ -299,7 +299,6 @@ void process_exit(void) // thread_exit을 통해 여기로 옴
         close(i);
     }
 
-    palloc_free_multiple(cur->fd_table, 1);
     process_cleanup();
 
     sema_up(&cur->wait_sema); // 끝나고 기다리는 부모한테 세마포 넘겨줌
@@ -440,6 +439,7 @@ load (const char *file_name, struct intr_frame *if_) {
 		printf ("load: %s: open failed\n", args[0]);
 		goto done;
 	}
+	file_deny_write(file);
 
 	/* Read and verify executable header. */
 	if (file_read (file, &ehdr, sizeof ehdr) != sizeof ehdr
