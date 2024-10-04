@@ -213,6 +213,8 @@ thread_create (const char *name, int priority,
 	init_thread (t, name, priority);
 	tid = t->tid = allocate_tid ();
 
+
+
 	/* Call the kernel_thread if it scheduled.
 	 * Note) rdi is 1st argument, and rsi is 2nd argument. */
 	t->tf.rip = (uintptr_t) kernel_thread;
@@ -225,6 +227,9 @@ thread_create (const char *name, int priority,
 	t->tf.eflags = FLAG_IF;
 	if (strcmp(name, "idle") != 0)
 	{
+// #ifdef USERPROG
+		list_push_back(&thread_current()->children, &t->child_elem);
+// #endif
 		t->recent_cpu = thread_current()->recent_cpu;
 	}
 	
@@ -492,6 +497,11 @@ init_thread (struct thread *t, const char *name, int priority) {
     	t->fd_table[i] = NULL;
 	}
 	t->next_fd = 3;
+	sema_init(&t->fork_sema, 0);
+	sema_init(&t->wait_sema, 0);
+	sema_init(&t->free_sema, 0);
+	list_init(&t->children);
+	t->process_status = 0;
 #ifdef USERPROG
 #endif
 }
@@ -815,4 +825,25 @@ void mlfqs_incr(){
 	}
 	int curr_recent_cpu = t->recent_cpu;
 	t->recent_cpu = add_mixed(curr_recent_cpu,1);
+}
+
+struct thread *get_thread_by_tid(tid_t tid) {
+	struct thread *parent = thread_current();
+	
+	for (struct list_elem *e = list_begin(&parent->children); e != list_end(&parent->children); e = list_next(e)) {
+        struct thread *child = list_entry(e, struct thread, child_elem);
+        if (child->tid == tid) {
+            return child;  // 자식 프로세스를 찾음
+        }
+    }
+	return NULL;
+
+    // struct list_elem *e;
+    // for (e = list_begin(&all_list); e != list_end(&all_list); e = list_next(e)) {
+    //     struct thread *t = list_entry(e, struct thread, all_elem);
+    //     if (t->tid == tid) {
+    //         return t;
+    //     }
+    // }
+    // return NULL;
 }

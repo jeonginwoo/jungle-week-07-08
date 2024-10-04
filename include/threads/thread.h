@@ -5,6 +5,9 @@
 #include <list.h>
 #include <stdint.h>
 #include "threads/interrupt.h"
+
+#include "threads/synch.h"
+
 #ifdef VM
 #include "vm/vm.h"
 #endif
@@ -85,6 +88,8 @@ typedef int tid_t;
  * only because they are mutually exclusive: only a thread in the
  * ready state is on the run queue, whereas only a thread in the
  * blocked state is on a semaphore wait list. */
+
+#define FD_MAX 128
 struct thread {
 	/* Owned by thread.c. */
 	tid_t tid;                          /* Thread identifier. */
@@ -97,6 +102,7 @@ struct thread {
 	struct list donations;
 	struct list_elem donation_elem;
 	struct list_elem all_elem;
+	
 
 	int nice;
 	int recent_cpu;
@@ -106,8 +112,14 @@ struct thread {
 
 // #ifdef USERPROG
 	uint64_t *pml4;                     /* Page map level 4 */
-	struct file *fd_table[128];
+	struct file *fd_table[FD_MAX];
 	int next_fd;
+	struct semaphore fork_sema;
+	struct semaphore wait_sema;
+	struct semaphore free_sema;
+	struct list children;
+	struct list_elem child_elem;
+	int process_status;
 #ifdef USERPROG
 	/* Owned by userprog/process.c. */
 #endif
@@ -118,6 +130,7 @@ struct thread {
 
 	/* Owned by thread.c. */
 	struct intr_frame tf;               /* Information for switching */
+	struct intr_frame parent_tf;               /* project2 syscall */
 	unsigned magic;                     /* Detects stack overflow. */
 };
 
@@ -126,6 +139,8 @@ struct sleeping_thread {
 	int64_t wakeup_ticks;
 	struct list_elem elem;
 };
+
+#define PROCESS_ERR -1
 
 void check_priority();
 void print_ready_list(void);
@@ -164,4 +179,6 @@ int thread_get_recent_cpu (void);
 int thread_get_load_avg (void);
 
 void do_iret (struct intr_frame *tf);
+
+struct thread *get_thread_by_tid(tid_t tid);
 #endif /* threads/thread.h */
